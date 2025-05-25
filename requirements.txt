@@ -1,0 +1,7 @@
+Flask>=2.0
+gunicorn
+python-dotenv>=0.21
+sentence-transformers>=2.2
+torch>=1.12
+pinecone
+google-generativeai>=0.0.5
