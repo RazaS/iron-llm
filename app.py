@@ -1,4 +1,5 @@
 import os
+import re
 import uuid
 import json
 import base64
@@ -67,7 +68,7 @@ HTML_TEMPLATE = """
         <div class="user">Bot:</div>
         <div class="bot" id="bot-{{ loop.index }}"></div>
         <script>
-          document.getElementById("bot-{{ loop.index }}").innerHTML = marked.parse(`{{ pair.response | tojson | safe }}`);
+          document.getElementById("bot-{{ loop.index }}").innerHTML = marked.parse({{ pair.response | tojson }});
         </script>
       </div>
     {% endfor %}
@@ -129,7 +130,14 @@ def chat():
         try:
             model = genai.GenerativeModel("gemini-1.5-flash")
             result = model.generate_content(f"Use this context to answer the question:\n\n{context}\n\nQuestion: {query}")
-            response = result.text
+            response = result.text.strip().strip('"')
+            
+            # Collapse 3+ newlines into 1
+            response = re.sub(r'\n{3,}', '\n', response)
+
+            # Collapse all 2+ newlines into 1
+            response = re.sub(r'\n{2,}', '\n', response)
+                
         except Exception as e:
             response = f"⚠️ Error generating response: {str(e)}"
 
